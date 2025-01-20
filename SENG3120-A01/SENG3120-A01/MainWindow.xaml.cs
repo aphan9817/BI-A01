@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using OxyPlot;
+using OxyPlot.Axes;
 using OxyPlot.Series;
 
 namespace SENG3120_A01
@@ -25,6 +26,44 @@ namespace SENG3120_A01
         public MainWindow()
         {
             InitializeComponent();
+
+            var categories = new[] { "Test" };
+            var frequencies = new[] { 1 };
+
+            // title
+            var plotModel = new PlotModel { Title = "Pareto Diagram" };
+
+            // legend
+            
+            // axis titles
+            plotModel.Axes.Add(new CategoryAxis
+            {
+                Position = AxisPosition.Bottom,
+                Key = "Categories",
+                ItemsSource = categories,
+                Title = "Categories"
+            });
+
+            plotModel.Axes.Add(new CategoryAxis
+            {
+                Position = AxisPosition.Left,
+                Key = "FrequencyAxis",
+                Minimum = 0,
+                Title = "Freq."
+            });
+
+            plotModel.Axes.Add(new CategoryAxis
+            {
+                Position = AxisPosition.Right,
+                Key = "PercentageAxis",
+                Minimum = 0,
+                Maximum = 100,
+                Title = "Cum. %"
+            });
+
+            // axis values
+
+            MyModel.Model = plotModel;
         }
     }
 }
