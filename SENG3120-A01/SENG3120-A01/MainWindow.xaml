@@ -8,6 +8,13 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <oxy:PlotView x:Name="MyModel" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <oxy:PlotView x:Name="MyModel" Grid.Row="0"/>
+
+        <DataGrid x:Name="DataGrid" Grid.Row="1" AutoGenerateColumns="True" IsReadOnly="True" />
     </Grid>
 </Window>
