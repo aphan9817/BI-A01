@@ -28,28 +28,31 @@ namespace SENG3120_A01
         {
             InitializeComponent();
 
+            // test data
             var categories = new[] { "Test 1", "Test 2", "Test 3", "Test 4", "Test 5", };
             var frequencies = new[] { 1, 2, 30, 40, 50 };
             int total = frequencies.Sum();
-
             double cumulative = 0;
             var dataList = new List<DataModel>();
             var percentages = new List<double>();
 
+            // calculate each percentage
             for (int i = 0; i < frequencies.Length; i++)
             {
                 cumulative += frequencies[i];
-                double Percentage = (cumulative / total) * 100;
-                percentages.Add(Percentage);
+                double percentage = (cumulative / total) * 100;
+                percentages.Add(percentage);
 
+                // add data to list
                 dataList.Add(new DataModel
                 {
                     Category = categories[i],
                     Frequency = frequencies[i],
-                    Percentage = Percentage,
+                    Percentage = percentage,
                 });
             }
 
+            // bind data to the data grid
             DataGrid.ItemsSource = dataList;
 
             // title
@@ -64,6 +67,7 @@ namespace SENG3120_A01
             });
             
             // axis titles
+            // category axis
             plotModel.Axes.Add(new CategoryAxis
             {
                 Position = AxisPosition.Bottom,
@@ -72,6 +76,7 @@ namespace SENG3120_A01
                 Title = "Categories"
             });
 
+            // frequency axis
             plotModel.Axes.Add(new CategoryAxis
             {
                 Position = AxisPosition.Left,
@@ -80,6 +85,7 @@ namespace SENG3120_A01
                 Title = "Freq."
             });
 
+            // percentage axis
             plotModel.Axes.Add(new CategoryAxis
             {
                 Position = AxisPosition.Right,
@@ -88,6 +94,34 @@ namespace SENG3120_A01
                 Maximum = 100,
                 Title = "Cum. %"
             });
+
+            // column series 
+            var linearBarSeries = new LinearBarSeries
+            {
+                Title = "Frequency",
+                BarWidth = 50
+            };
+
+            for (int i = 0; i < categories.Length; i++)
+            {
+                linearBarSeries.Points.Add(new DataPoint(i, frequencies[i]));
+            }
+            plotModel.Series.Add(linearBarSeries);
+
+
+            // line series
+            var lineSeries = new LineSeries
+            {
+                Title = "Cumulative Percentage",
+                MarkerType = MarkerType.Circle,
+                YAxisKey = "PercentageAxis"
+            };
+
+            for (int i = 0; i < categories.Length; i++)
+            {
+                lineSeries.Points.Add(new DataPoint(i, percentages[i]));
+            }
+            plotModel.Series.Add(lineSeries);
 
             // axis values
             MyModel.Model = plotModel;
