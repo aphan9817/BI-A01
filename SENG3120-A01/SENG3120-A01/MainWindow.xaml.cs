@@ -29,8 +29,8 @@ namespace SENG3120_A01
             InitializeComponent();
 
             // test data
-            var categories = new[] { "Test 1", "Test 2", "Test 3", "Test 4", "Test 5", };
-            var frequencies = new[] { 1, 2, 30, 40, 50 };
+            var categories = new[] { "Holes", "Poor Mix", "Stains", "Not Enough Component", "Torn", "Others" };
+            var frequencies = new[] { 27, 11, 8, 7, 5, 2 };
             int total = frequencies.Sum();
             double cumulative = 0;
             var dataList = new List<DataModel>();
@@ -73,33 +73,46 @@ namespace SENG3120_A01
                 Position = AxisPosition.Bottom,
                 Key = "Categories",
                 ItemsSource = categories,
-                Title = "Categories"
+                Title = "Defect Category",
+                IsPanEnabled = false,
+                IsZoomEnabled = false,
+                MinimumPadding = 0,
+                MaximumPadding = 0.1,
+                GapWidth = 0.2
             });
 
             // frequency axis
-            plotModel.Axes.Add(new CategoryAxis
+            plotModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Left,
                 Key = "FrequencyAxis",
                 Minimum = 0,
-                Title = "Freq."
+                Maximum = 27,
+                Title = "Freq.",
+                MajorStep = 10,
+                IsPanEnabled = false,
+                IsZoomEnabled = false
             });
 
             // percentage axis
-            plotModel.Axes.Add(new CategoryAxis
+            plotModel.Axes.Add(new LinearAxis
             {
                 Position = AxisPosition.Right,
                 Key = "PercentageAxis",
                 Minimum = 0,
                 Maximum = 100,
-                Title = "Cum. %"
+                Title = "Cum. %",
+                MajorStep = 20,
+                IsPanEnabled = false,
+                IsZoomEnabled = false
             });
 
             // column series 
             var linearBarSeries = new LinearBarSeries
             {
                 Title = "Frequency",
-                BarWidth = 50
+                BarWidth = 50,
+                FillColor = OxyColors.SteelBlue,
             };
 
             for (int i = 0; i < categories.Length; i++)
@@ -114,6 +127,7 @@ namespace SENG3120_A01
             {
                 Title = "Cumulative Percentage",
                 MarkerType = MarkerType.Circle,
+                MarkerFill = OxyColors.Red,
                 YAxisKey = "PercentageAxis"
             };
 
