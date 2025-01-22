@@ -9,12 +9,18 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="2*" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
-        <oxy:PlotView x:Name="MyModel" Grid.Row="0"/>
 
-        <DataGrid x:Name="DataGrid" Grid.Row="1" AutoGenerateColumns="True" IsReadOnly="True" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="0">
+            <TextBlock Text="Choose Points: " VerticalAlignment="Center" />
+            <ComboBox x:Name="PointsSelector" SelectionChanged="PointsSelector_SelectionChanged" />
+        </StackPanel>
+
+        <oxy:PlotView x:Name="MyModel" Grid.Row="1"/>
+
+        <DataGrid x:Name="DataGrid" Grid.Row="2" AutoGenerateColumns="True" IsReadOnly="True" />
     </Grid>
 </Window>

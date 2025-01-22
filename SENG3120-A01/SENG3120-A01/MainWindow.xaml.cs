@@ -1,5 +1,16 @@
-﻿using System;
+﻿/*
+* FILE : MainWindow.xaml.cs
+* PROJECT : SENG3120 - Assignment #1
+* PROGRAMMER : Anthony Phan
+* FIRST VERSION : January 19, 2025
+* DESCRIPTION :
+* The functions in this file are used to display a Pareto diagram using a Defect category data set.
+* The chart tool used in this application is OxyPlot https://oxyplot.github.io/
+*/
+
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,61 +35,57 @@ namespace SENG3120_A01
     /// </summary>
     public partial class MainWindow : Window
     {
+        // allow data binding
+        private ObservableCollection<DataModel> Data { get; set; }
         public MainWindow()
         {
             InitializeComponent();
 
-            // test data
-            var categories = new[] { "Holes", "Poor Mix", "Stains", "Not Enough Component", "Torn", "Others" };
-            var frequencies = new[] { 27, 11, 8, 7, 5, 2 };
-            int total = frequencies.Sum();
-            double cumulative = 0;
-            var dataList = new List<DataModel>();
-            var percentages = new List<double>();
-
-            // calculate each percentage
-            for (int i = 0; i < frequencies.Length; i++)
+            // data set was inspired by M02-BI Charts - Pareto Diagram and modified to have more points
+            var datasets = new[]
             {
-                cumulative += frequencies[i];
-                double percentage = (cumulative / total) * 100;
-                percentages.Add(percentage);
+                new Dataset("5 Points", new[] { "Holes", "Poor Mix", "Stains", "Not Enough Component", "Torn" }, new[] { 27, 11, 8, 7, 5 }),
+                new Dataset("8 Points", new[] { "Holes", "Poor Mix", "Stains", "Not Enough Component", "Torn", "Scratched", "Wrong Colour", "Chipped" }, new[] { 27, 11, 8, 7, 5, 3, 17, 20 }),
+                new Dataset("10 Points", new[] { "Holes", "Poor Mix", "Stains", "Not Enough Component", "Torn", "Scratched", "Wrong Colour", "Chipped", "Melted", "Other"  }, new[] { 27, 11, 8, 7, 5, 3, 17, 20, 25, 6 })
+            };
 
-                // add data to list
-                dataList.Add(new DataModel
-                {
-                    Category = categories[i],
-                    Frequency = frequencies[i],
-                    Percentage = percentage,
-                });
-            }
+            // fill combo box with values from dataset
+            PointsSelector.ItemsSource = datasets;
+            PointsSelector.DisplayMemberPath = "Name";
 
-            // bind data to the data grid
-            DataGrid.ItemsSource = dataList;
+            // set the default dataset to the first one (5 points)
+            PointsSelector.SelectedIndex = 0;
+        }
 
-            // title
+        // FUNCTION    : UpdateChart
+        // DESCRIPTION : This function is used to update the Pareto Diagram.
+        // PARAMETERS  : None
+        // RETURNS     : Nothing
+        private void UpdateChart()
+        {
+            // -- title --
             var plotModel = new PlotModel { Title = "Pareto Diagram" };
 
-            // legend
+            // -- legend --
             plotModel.Legends.Add(new Legend
             {
                 LegendTitle = "Legend",
                 LegendPosition = LegendPosition.TopRight,
                 LegendFontSize = 12
             });
-            
-            // axis titles
+
+            // -- axis titles --
             // category axis
             plotModel.Axes.Add(new CategoryAxis
             {
                 Position = AxisPosition.Bottom,
                 Key = "Categories",
-                ItemsSource = categories,
+                ItemsSource = Data.Select(d => d.Category).ToArray(),
                 Title = "Defect Category",
                 IsPanEnabled = false,
                 IsZoomEnabled = false,
                 MinimumPadding = 0,
-                MaximumPadding = 0.1,
-                GapWidth = 0.2
+                MaximumPadding = 0.1
             });
 
             // frequency axis
@@ -107,7 +114,7 @@ namespace SENG3120_A01
                 IsZoomEnabled = false
             });
 
-            // column series 
+            // bar series 
             var linearBarSeries = new LinearBarSeries
             {
                 Title = "Frequency",
@@ -115,10 +122,12 @@ namespace SENG3120_A01
                 FillColor = OxyColors.SteelBlue,
             };
 
-            for (int i = 0; i < categories.Length; i++)
+            // plot bar series
+            for (int i = 0; i < Data.Count; i++)
             {
-                linearBarSeries.Points.Add(new DataPoint(i, frequencies[i]));
+                linearBarSeries.Points.Add(new DataPoint(i, Data[i].Frequency));
             }
+            // plot values
             plotModel.Series.Add(linearBarSeries);
 
 
@@ -131,14 +140,68 @@ namespace SENG3120_A01
                 YAxisKey = "PercentageAxis"
             };
 
-            for (int i = 0; i < categories.Length; i++)
+            // plot line series
+            for (int i = 0; i < Data.Count; i++)
             {
-                lineSeries.Points.Add(new DataPoint(i, percentages[i]));
+                lineSeries.Points.Add(new DataPoint(i, Data[i].Percentage));
             }
+            // plot values
             plotModel.Series.Add(lineSeries);
 
-            // axis values
+            // -- axis values --
+            // create graph
             MyModel.Model = plotModel;
+        }
+
+
+        // FUNCTION    : LoadDataset
+        // DESCRIPTION : This function loads the selected dataset
+        // PARAMETERS  : Dataset dataset
+        // RETURNS     : Nothing
+        private void LoadDataset(Dataset dataset)
+        {
+            // create new data model
+            var dataModels = new List<DataModel>();
+            for (int i = 0; i < dataset.Categories.Length; i++)
+            {
+                dataModels.Add(new DataModel
+                {
+                    Category = dataset.Categories[i],
+                    Frequency = dataset.Frequencies[i]
+                });
+            }
+
+            // sort data by descending for pareto diagrams
+            var sortedData = dataModels.OrderByDescending(x => x.Frequency).ToList();
+
+            // calculate the cumlative percentages
+            var total = sortedData.Sum(x => x.Frequency);
+            double cumulative = 0;
+
+            foreach (var item in sortedData)
+            {
+                cumulative += item.Frequency;
+                item.Percentage = (cumulative / total) * 100;
+            }
+
+            // bind the data
+            Data = new ObservableCollection<DataModel>(sortedData);
+            DataGrid.ItemsSource = Data;
+
+            // update the diagram
+            UpdateChart();
+        }
+
+        // FUNCTION    : PointsSelector_SelectionChanged
+        // DESCRIPTION : This function loads the associated dataset when the points selector is changed
+        // PARAMETERS  : object sender, SelectionChangedEventArgs e
+        // RETURNS     : Nothing
+        private void PointsSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PointsSelector.SelectedItem is Dataset selectedDataset)
+            {
+                LoadDataset(selectedDataset);
+            }
         }
     }
 }

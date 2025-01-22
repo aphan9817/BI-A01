@@ -1,4 +1,13 @@
-﻿using System;
+﻿/*
+* FILE : DataModel.cs
+* PROJECT : SENG3120 - Assignment #1
+* PROGRAMMER : Anthony Phan
+* FIRST VERSION : January 19, 2025
+* DESCRIPTION :
+* Class for DataModel
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
